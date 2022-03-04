@@ -145,13 +145,8 @@ class Alphabet extends FlxSpriteGroup
 				lastWasSpace = true;
 			}
 
-			#if (haxe >= "4.0.0")
-			var isNumber:Bool = AlphaCharacter.numbers.contains(splitWords[loopNum]);
-			var isSymbol:Bool = AlphaCharacter.symbols.contains(splitWords[loopNum]);
-			#else
 			var isNumber:Bool = AlphaCharacter.numbers.indexOf(splitWords[loopNum]) != -1;
 			var isSymbol:Bool = AlphaCharacter.symbols.indexOf(splitWords[loopNum]) != -1;
-			#end
 
 			if (AlphaCharacter.alphabet.indexOf(splitWords[loopNum].toLowerCase()) != -1 || isNumber || isSymbol)
 				// if (AlphaCharacter.alphabet.contains(splitWords[loopNum].toLowerCase()) || isNumber || isSymbol)
@@ -234,11 +229,11 @@ class Alphabet extends FlxSpriteGroup
 
 class AlphaCharacter extends FlxSprite
 {
-	public static var alphabet:String = "abcdefghijklmnopqrstuvwxyz";
+	public static var alphabet:String = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 	public static var numbers:String = "1234567890";
 
-	public static var symbols:String = "|~#$%()*+-:;<=>@[]^_.,'!?";
+	public static var symbols:String = "~!@#$%^&*()_+`-=[]{};',./|:<>?" + '"';
 
 	public var row:Int = 0;
 
@@ -288,21 +283,32 @@ class AlphaCharacter extends FlxSprite
 	{
 		switch (letter)
 		{
-			case '.':
-				animation.addByPrefix(letter, 'period', 24);
-				animation.play(letter);
-				y += 50;
+			case '#':
+				animation.addByPrefix(letter, 'hashtag ', 24);
+			case '$':
+				animation.addByPrefix(letter, 'dollarsign ', 24);
+			case '&':
+				animation.addByPrefix(letter, 'amp', 24);
 			case "'":
 				animation.addByPrefix(letter, 'apostraphie', 24);
-				animation.play(letter);
-				y -= 0;
-			case "?":
-				animation.addByPrefix(letter, 'question mark', 24);
-				animation.play(letter);
-			case "!":
+			case ",":
+				animation.addByPrefix(letter, 'comma', 24);
+			case '"':
+				animation.addByPrefix(letter, 'end parentheses', 24);
+			case '!':
 				animation.addByPrefix(letter, 'exclamation point', 24);
-				animation.play(letter);
+			case '/':
+				animation.addByPrefix(letter, 'forward slash', 24);
+			case '.':
+				animation.addByPrefix(letter, 'period', 24);
+			case '?':
+				animation.addByPrefix(letter, 'question mark', 24);
+			case '×':
+				animation.addByPrefix(letter, 'multiply x', 24);
+			default:
+				animation.addByPrefix(letter, letter, 24);
 		}
+		animation.play(letter);
 
 		updateHitbox();
 	}

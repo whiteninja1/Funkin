@@ -7,7 +7,7 @@ import openfl.utils.Assets as OpenFlAssets;
 
 class Paths
 {
-	inline public static var SOUND_EXT = #if web "mp3" #else "ogg" #end;
+	inline public static var SOUND_EXT = "ogg";
 
 	static var currentLevel:String;
 
@@ -113,5 +113,46 @@ class Paths
 	inline static public function getPackerAtlas(key:String, ?library:String)
 	{
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(key, library), file('images/$key.txt', library));
+	}
+
+	inline static public function modpath()
+	{
+		var mods:Array<String> = [];
+		var directory:String = 'mods/';
+		if (sys.FileSystem.exists(directory))
+		{
+			for (file in sys.FileSystem.readDirectory(directory))
+			{
+				  if (sys.FileSystem.isDirectory(directory))
+				{
+					mods.push(haxe.io.Path.addTrailingSlash(directory));
+					modpath();
+				}
+			}
+		}
+		return mods;
+	}
+
+	inline static public function findfile(library:String)
+	{
+		var foundfiles:Array<String> = [];
+		var something = ['assets/'];
+		something.push('mods/' + Mod.selectedmod);
+		for(i in something)
+		{
+			var directory:String = i + library;
+			if (sys.FileSystem.exists(directory))
+			{
+				for (file in sys.FileSystem.readDirectory(directory))
+				{
+					  if (sys.FileSystem.isDirectory(directory))
+					{
+						foundfiles.push(haxe.io.Path.addTrailingSlash(directory));
+						modpath();
+					}
+				}
+			}
+		}
+		return foundfiles;
 	}
 }

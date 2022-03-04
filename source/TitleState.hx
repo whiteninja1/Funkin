@@ -26,6 +26,7 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.app.Application;
 import openfl.Assets;
+import sys.io.File;
 
 using StringTools;
 
@@ -45,7 +46,7 @@ class TitleState extends MusicBeatState
 
 	override public function create():Void
 	{
-		PlayerSettings.init();
+		PlayerSettings.init(); //FRIDAY NIGHT FUNKIN IS BRITISH!?!?!?!?!??!?!?
 
 		curWacky = FlxG.random.getObject(getIntroTextShit());
 
@@ -332,10 +333,10 @@ class TitleState extends MusicBeatState
 		switch (curBeat)
 		{
 			case 1:
-				createCoolText(['ninjamuffin99', 'phantomArcade', 'kawaisprite', 'evilsk8er']);
+				createCoolText([CoolUtil.titletext[0]]);
 			// credTextShit.visible = true;
 			case 3:
-				addMoreText('present');
+				addMoreText(CoolUtil.titletext[1]);
 			// credTextShit.text += '\npresent...';
 			// credTextShit.addText();
 			case 4:
@@ -344,9 +345,9 @@ class TitleState extends MusicBeatState
 			// credTextShit.text = 'In association \nwith';
 			// credTextShit.screenCenter();
 			case 5:
-				createCoolText(['In association', 'with']);
+				createCoolText([CoolUtil.titletext[2]]);
 			case 7:
-				addMoreText('newgrounds');
+				addMoreText(CoolUtil.titletext[3]);
 				ngSpr.visible = true;
 			// credTextShit.text += '\nNewgrounds';
 			case 8:
@@ -368,13 +369,13 @@ class TitleState extends MusicBeatState
 			// credTextShit.text = "Friday";
 			// credTextShit.screenCenter();
 			case 13:
-				addMoreText('Friday');
+				addMoreText(CoolUtil.titletext[4]);
 			// credTextShit.visible = true;
 			case 14:
-				addMoreText('Night');
+				addMoreText(CoolUtil.titletext[5]);
 			// credTextShit.text += '\nNight';
 			case 15:
-				addMoreText('Funkin'); // credTextShit.text += '\nFunkin';
+				addMoreText(CoolUtil.titletext[6]); // credTextShit.text += '\nFunkin';
 
 			case 16:
 				skipIntro();

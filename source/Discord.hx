@@ -2,6 +2,7 @@ package;
 
 import Sys.sleep;
 import discord_rpc.DiscordRpc;
+import lime.utils.Assets;
 
 using StringTools;
 
@@ -11,7 +12,7 @@ class DiscordClient
 	{
 		trace("Discord Client starting...");
 		DiscordRpc.start({
-			clientID: "814588678700924999",
+			clientID: CoolUtil.discordstuff[0],
 			onReady: onReady,
 			onError: onError,
 			onDisconnected: onDisconnected
@@ -38,8 +39,7 @@ class DiscordClient
 		DiscordRpc.presence({
 			details: "In the Menus",
 			state: null,
-			largeImageKey: 'icon',
-			largeImageText: "Friday Night Funkin'"
+			largeImageKey: 'icon'
 		});
 	}
 
@@ -74,9 +74,7 @@ class DiscordClient
 		DiscordRpc.presence({
 			details: details,
 			state: state,
-			largeImageKey: 'icon',
-			largeImageText: "Friday Night Funkin'",
-			smallImageKey : smallImageKey,
+			largeImageKey: CoolUtil.discordstuff[1],
 			// Obtained times are in milliseconds so they are divided so Discord can use it
 			startTimestamp : Std.int(startTimestamp / 1000),
             endTimestamp : Std.int(endTimestamp / 1000)

@@ -134,6 +134,9 @@ class PlayState extends MusicBeatState
 	var detailsPausedText:String = "";
 	#end
 
+	var songmiss:Int = 0;
+	var missTxt:FlxText;
+
 	override public function create()
 	{
 		if (FlxG.sound.music != null)
@@ -729,7 +732,7 @@ class PlayState extends MusicBeatState
 		healthBar = new FlxBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), this,
 			'health', 0, 2);
 		healthBar.scrollFactor.set();
-		healthBar.createFilledBar(0xFFFF0000, 0xFF66FF33);
+		healthBar.createFilledBar(CoolUtil.healthbarcolor(iconP1), CoolUtil.healthbarcolor(iconP2));
 		// healthBar
 		add(healthBar);
 
@@ -737,6 +740,11 @@ class PlayState extends MusicBeatState
 		scoreTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT);
 		scoreTxt.scrollFactor.set();
 		add(scoreTxt);
+
+		missTxt = new FlxText(10, FlxG.height - 50, 0, "", 20);
+		missTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
+		missTxt.scrollFactor.set();
+		add(missTxt);
 
 		iconP1 = new HealthIcon(SONG.player1, true);
 		iconP1.y = healthBar.y - (iconP1.height / 2);
@@ -753,6 +761,7 @@ class PlayState extends MusicBeatState
 		iconP1.cameras = [camHUD];
 		iconP2.cameras = [camHUD];
 		scoreTxt.cameras = [camHUD];
+		missTxt.cameras = [camHUD];
 		doof.cameras = [camHUD];
 
 		// if (SONG.song == 'South')
@@ -1341,9 +1350,15 @@ class PlayState extends MusicBeatState
 		if (FlxG.keys.justPressed.NINE)
 		{
 			if (iconP1.animation.curAnim.name == 'bf-old')
+			{
 				iconP1.animation.play(SONG.player1);
+				healthBar.createFilledBar(CoolUtil.healthbarcolor(iconP1), CoolUtil.healthbarcolor(iconP2));
+			}
 			else
-				iconP1.animation.play('bf-old');
+			{
+			iconP1.animation.play('bf-old');
+			healthBar.createFilledBar(CoolUtil.healthbarcolor(iconP1), CoolUtil.healthbarcolor(iconP2));
+			}
 		}
 
 		switch (curStage)
@@ -1365,6 +1380,7 @@ class PlayState extends MusicBeatState
 		super.update(elapsed);
 
 		scoreTxt.text = "Score:" + songScore;
+		scoreTxt.text = "Misses:" + songmiss;
 
 		if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
 		{
@@ -1412,15 +1428,60 @@ class PlayState extends MusicBeatState
 		if (health > 2)
 			health = 2;
 
-		if (healthBar.percent < 20)
-			iconP1.animation.curAnim.curFrame = 1;
-		else
-			iconP1.animation.curAnim.curFrame = 0;
-
-		if (healthBar.percent > 80)
-			iconP2.animation.curAnim.curFrame = 1;
-		else
-			iconP2.animation.curAnim.curFrame = 0;
+		if(iconP1.icontype == 0)
+		{
+			if (healthBar.percent < 25)
+				iconP1.animation.curAnim.curFrame = 0;
+			else if (healthBar.percent > 75)
+				iconP1.animation.curAnim.curFrame = 0;
+			else
+				iconP1.animation.curAnim.curFrame = 0;
+		}
+		else if(iconP1.icontype == 1)
+		{
+			if (healthBar.percent < 25)
+				iconP1.animation.curAnim.curFrame = 1;
+			else if (healthBar.percent > 75)
+				iconP1.animation.curAnim.curFrame = 0;
+			else
+				iconP1.animation.curAnim.curFrame = 0;
+		}
+		else if(iconP1.icontype == 2)
+		{
+			if (healthBar.percent < 25)
+				iconP1.animation.curAnim.curFrame = 1;
+			else if (healthBar.percent > 75)
+				iconP1.animation.curAnim.curFrame = 2;
+			else
+				iconP1.animation.curAnim.curFrame = 0;
+		}
+		if(iconP2.icontype == 0)
+		{
+			if (healthBar.percent < 25)
+				iconP2.animation.curAnim.curFrame = 0;
+			else if (healthBar.percent > 75)
+				iconP2.animation.curAnim.curFrame = 0;
+			else
+				iconP2.animation.curAnim.curFrame = 0;
+		}
+		else if(iconP2.icontype == 1)
+		{
+			if (healthBar.percent < 25)
+				iconP2.animation.curAnim.curFrame = 1;
+			else if (healthBar.percent > 75)
+				iconP2.animation.curAnim.curFrame = 0;
+			else
+				iconP2.animation.curAnim.curFrame = 0;
+		}
+		else if(iconP2.icontype == 2)
+		{
+			if (healthBar.percent < 25)
+				iconP2.animation.curAnim.curFrame = 1;
+			else if (healthBar.percent > 75)
+				iconP2.animation.curAnim.curFrame = 2;
+			else
+				iconP2.animation.curAnim.curFrame = 0;
+		}
 
 		/* if (FlxG.keys.justPressed.NINE)
 			FlxG.switchState(new Charting()); */
@@ -2135,7 +2196,7 @@ class PlayState extends MusicBeatState
 				gf.playAnim('sad');
 			}
 			combo = 0;
-
+			songmiss += 1;
 			songScore -= 10;
 
 			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
