@@ -1,0 +1,12 @@
+tutorial|gf
+easy, normal, hard
+
+true
+true
+
+HOW TO ADD WEEK:
+first one is song name/icon (for freeplay)
+second one is difficulties
+third is song name
+fourth one is if it appears on story mode
+fifth is if it appears on freeplay

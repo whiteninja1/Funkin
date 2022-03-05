@@ -114,7 +114,7 @@ class PlayState extends MusicBeatState
 
 	var talking:Bool = true;
 	var songScore:Int = 0;
-	var scoreTxt:FlxText;
+	var songTxt:FlxText;
 
 	public static var campaignScore:Int = 0;
 
@@ -135,7 +135,10 @@ class PlayState extends MusicBeatState
 	#end
 
 	var songmiss:Int = 0;
-	var missTxt:FlxText;
+	var notepressed = 1;
+	var accuracy = 100;
+	var accuracystuff = 1.0;
+	var accuracystuffuhhh = 1.0;
 
 	override public function create()
 	{
@@ -732,19 +735,12 @@ class PlayState extends MusicBeatState
 		healthBar = new FlxBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), this,
 			'health', 0, 2);
 		healthBar.scrollFactor.set();
-		healthBar.createFilledBar(CoolUtil.healthbarcolor(iconP1), CoolUtil.healthbarcolor(iconP2));
 		// healthBar
 		add(healthBar);
 
-		scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width - 190, healthBarBG.y + 30, 0, "", 20);
-		scoreTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT);
-		scoreTxt.scrollFactor.set();
-		add(scoreTxt);
-
-		missTxt = new FlxText(10, FlxG.height - 50, 0, "", 20);
-		missTxt.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
-		missTxt.scrollFactor.set();
-		add(missTxt);
+		songTxt = new FlxText(0, healthBarBG.y + 35, 0, "", 20);
+		songTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		songTxt.scrollFactor.set();
 
 		iconP1 = new HealthIcon(SONG.player1, true);
 		iconP1.y = healthBar.y - (iconP1.height / 2);
@@ -754,14 +750,17 @@ class PlayState extends MusicBeatState
 		iconP2.y = healthBar.y - (iconP2.height / 2);
 		add(iconP2);
 
+		add(songTxt);
+
+		healthBar.createFilledBar(CoolUtil.healthbarcolor(iconP2), CoolUtil.healthbarcolor(iconP1));
+
 		strumLineNotes.cameras = [camHUD];
 		notes.cameras = [camHUD];
 		healthBar.cameras = [camHUD];
 		healthBarBG.cameras = [camHUD];
 		iconP1.cameras = [camHUD];
 		iconP2.cameras = [camHUD];
-		scoreTxt.cameras = [camHUD];
-		missTxt.cameras = [camHUD];
+		songTxt.cameras = [camHUD];
 		doof.cameras = [camHUD];
 
 		// if (SONG.song == 'South')
@@ -1347,20 +1346,6 @@ class PlayState extends MusicBeatState
 		perfectMode = false;
 		#end
 
-		if (FlxG.keys.justPressed.NINE)
-		{
-			if (iconP1.animation.curAnim.name == 'bf-old')
-			{
-				iconP1.animation.play(SONG.player1);
-				healthBar.createFilledBar(CoolUtil.healthbarcolor(iconP1), CoolUtil.healthbarcolor(iconP2));
-			}
-			else
-			{
-			iconP1.animation.play('bf-old');
-			healthBar.createFilledBar(CoolUtil.healthbarcolor(iconP1), CoolUtil.healthbarcolor(iconP2));
-			}
-		}
-
 		switch (curStage)
 		{
 			case 'philly':
@@ -1379,8 +1364,8 @@ class PlayState extends MusicBeatState
 
 		super.update(elapsed);
 
-		scoreTxt.text = "Score:" + songScore;
-		scoreTxt.text = "Misses:" + songmiss;
+		songTxt.text = "Score: " + songScore + ' | Misses: ' + songmiss + ' | Accuracy: ' + accuracy + '%';
+		songTxt.screenCenter(X);
 
 		if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
 		{
@@ -2033,22 +2018,24 @@ class PlayState extends MusicBeatState
 				}
 			});
 
+			var notestuff = [false,false,false,false];
+
 			if (possibleNotes.length > 0)
 			{
 				var daNote = possibleNotes[0];
-
-				if (perfectMode)
-					noteCheck(true, daNote);
-
+	
 				// Jump notes
 				if (possibleNotes.length >= 2)
 				{
-					if (possibleNotes[0].strumTime == possibleNotes[1].strumTime)
+					if (inRange(possibleNotes[0].strumTime, possibleNotes[1].strumTime, 4))
 					{
 						for (coolNote in possibleNotes)
 						{
-							if (controlArray[coolNote.noteData])
+							if (controlArray[coolNote.noteData] && !notestuff[coolNote.noteData])
+							{
 								goodNoteHit(coolNote);
+								notestuff[coolNote.noteData] = true;
+							}
 							else
 							{
 								var inIgnoreList:Bool = false;
@@ -2057,57 +2044,40 @@ class PlayState extends MusicBeatState
 									if (controlArray[ignoreList[shit]])
 										inIgnoreList = true;
 								}
-								if (!inIgnoreList)
+								if (!inIgnoreList){
 									badNoteCheck();
+								}
 							}
 						}
 					}
 					else if (possibleNotes[0].noteData == possibleNotes[1].noteData)
 					{
-						noteCheck(controlArray[daNote.noteData], daNote);
+						if (controlArray[daNote.noteData] && !notestuff[daNote.noteData])
+						{
+							goodNoteHit(daNote);
+							notestuff[daNote.noteData] = true;
+						}
 					}
 					else
 					{
 						for (coolNote in possibleNotes)
 						{
-							noteCheck(controlArray[coolNote.noteData], coolNote);
+							if (controlArray[coolNote.noteData] && !notestuff[coolNote.noteData] && !coolNote.isSustainNote)
+							{
+								goodNoteHit(coolNote);
+								notestuff[coolNote.noteData] = true;
+							}
 						}
 					}
 				}
-				else // regular notes?
+				else
 				{
-					noteCheck(controlArray[daNote.noteData], daNote);
-				}
-				/* 
-					if (controlArray[daNote.noteData])
-						goodNoteHit(daNote);
-				 */
-				// trace(daNote.noteData);
-				/* 
-						switch (daNote.noteData)
-						{
-							case 2: // NOTES YOU JUST PRESSED
-								if (upP || rightP || downP || leftP)
-									noteCheck(upP, daNote);
-							case 3:
-								if (upP || rightP || downP || leftP)
-									noteCheck(rightP, daNote);
-							case 1:
-								if (upP || rightP || downP || leftP)
-									noteCheck(downP, daNote);
-							case 0:
-								if (upP || rightP || downP || leftP)
-									noteCheck(leftP, daNote);
-						}
-
-					//this is already done in noteCheck / goodNoteHit
-					if (daNote.wasGoodHit)
+					if (controlArray[daNote.noteData] && !notestuff[daNote.noteData])
 					{
-						daNote.kill();
-						notes.remove(daNote, true);
-						daNote.destroy();
+						goodNoteHit(daNote);
+						notestuff[daNote.noteData] = true;
 					}
-				 */
+				}
 			}
 			else
 			{
@@ -2115,31 +2085,31 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		if ((up || right || down || left) && !boyfriend.stunned && generatedMusic)
-		{
 			notes.forEachAlive(function(daNote:Note)
 			{
-				if (daNote.canBeHit && daNote.mustPress && daNote.isSustainNote)
+				if ((up || right || down || left) && !boyfriend.stunned && generatedMusic)
 				{
-					switch (daNote.noteData)
+					if (daNote.canBeHit && daNote.mustPress && daNote.isSustainNote)
 					{
-						// NOTES YOU ARE HOLDING
-						case 0:
-							if (left)
-								goodNoteHit(daNote);
-						case 1:
-							if (down)
-								goodNoteHit(daNote);
-						case 2:
-							if (up)
-								goodNoteHit(daNote);
-						case 3:
-							if (right)
-								goodNoteHit(daNote);
+						switch (daNote.noteData)
+						{
+							// NOTES YOU ARE HOLDING
+							case 0:
+								if (left)
+									goodNoteHit(daNote);
+							case 1:
+								if (down)
+									goodNoteHit(daNote);
+							case 2:
+								if (up)
+									goodNoteHit(daNote);
+							case 3:
+								if (right)
+									goodNoteHit(daNote);
+						}
 					}
 				}
 			});
-		}
 
 		if (boyfriend.holdTimer > Conductor.stepCrochet * 4 * 0.001 && !up && !down && !right && !left)
 		{
@@ -2190,7 +2160,8 @@ class PlayState extends MusicBeatState
 	{
 		if (!boyfriend.stunned)
 		{
-			health -= 0.04;
+			health -= 0.0475;
+			updateaccuracy();
 			if (combo > 5 && gf.animOffsets.exists('sad'))
 			{
 				gf.playAnim('sad');
@@ -2268,6 +2239,25 @@ class PlayState extends MusicBeatState
 				health += 0.023;
 			else
 				health += 0.004;
+
+			var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition);
+
+			if (noteDiff > Conductor.safeZoneOffset * 0.9)
+			{
+				updateaccuracy('shit');
+			}
+			else if (noteDiff > Conductor.safeZoneOffset * 0.75)
+			{
+				updateaccuracy('bad');
+			}
+			else if (noteDiff > Conductor.safeZoneOffset * 0.2)
+			{
+				updateaccuracy('good');
+			}
+			else
+			{
+				updateaccuracy('sick');
+			}
 
 			switch (note.noteData)
 			{
@@ -2521,4 +2511,28 @@ class PlayState extends MusicBeatState
 	}
 
 	var curLight:Int = 0;
+
+	function inRange(a:Float, b:Float, tolerance:Float){
+		return (a <= b + tolerance && a >= b - tolerance);
+	}
+
+	function updateaccuracy(currating:String = 'miss')
+	{
+		notepressed += 1;
+		switch(currating)
+		{
+			case 'miss':
+				accuracystuff += 0.0;
+			case 'shit':
+				accuracystuff += 0.15;
+			case 'bad':
+				accuracystuff += 0.3;
+			case 'good':
+				accuracystuff += 0.6;
+			case 'sick':
+				accuracystuff += 1.0;
+		}
+		accuracystuffuhhh = accuracystuff / notepressed;
+		accuracy = Math.round(accuracystuffuhhh * 100);
+	}
 }

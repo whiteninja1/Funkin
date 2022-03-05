@@ -14,6 +14,7 @@ import flixel.util.FlxColor;
 import lime.utils.Assets;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
+import flixel.FlxObject;
 
 using StringTools;
 
@@ -23,10 +24,13 @@ class CreditsState extends MusicBeatState
 	private var iconArray:Array<HealthIcon> = [];
 	private var ynumber = 0;
 	private var creditgroup:FlxTypedGroup<Alphabet>;
-	var swagGoodArray:Array<Array<String>> = [];
 	var unselectedlist:Array<Array<String>> = [];
 	var selectedlist:Array<Array<String>> = [];
 	var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuBG'));
+	var camerapositions:Array<Int> = [];
+	var camerapositionstuff:Int = 260;
+	var menuitemnumber = 0;
+	var swagGoodArray:Array<Array<String>> = [];
 
 	override function create()
 	{
@@ -56,33 +60,47 @@ class CreditsState extends MusicBeatState
 
 		for (i in swagGoodArray)
 		{
-			var text:Alphabet = new Alphabet(0, 0, i[0], true, false);
-			text.screenCenter(X);
-			text.isMenuItem = true;
-			creditgroup.add(text);
+			var text:Alphabet;
 			if(i.length <= 1)
 			{
-				text.y = ynumber + 10;
-				ynumber += 100;
+				text = new Alphabet(0, (70 * menuitemnumber) + 30, i[0], true, false);
 			}
 			else
 			{
-				var icon:HealthIcon = new HealthIcon(i[1], false, true);
-				icon.sprTracker = text;
-				iconArray.push(icon);
-				add(icon);
-				text.y = ynumber;
-				ynumber += 80;
+				text = new Alphabet(0, (70 * menuitemnumber) + 30, i[0], false, false);
 			}
+			text.isMenuItem = true;
+			text.targetY = menuitemnumber;
+			creditgroup.add(text);
+			var icon:HealthIcon = new HealthIcon(i[1], false, true);
+			icon.sprTracker = text;
+			iconArray.push(icon);
+			add(icon);
+			if(i.length <= 1)
+			{
+				text.numberstuff = 50;
+				remove(icon);
+				unselectedlist.push(i);
+			}
+			else
+			{
+				selectedlist.push(i);
+			}
+			menuitemnumber += 1;
 		}
 
 		changeSelection(1);
+		changeSelection(-1);
 
 		super.create();
 	}
 
 	override function update(elapsed:Float)
 	{
+		for (item in creditgroup.members)
+		{
+			item.screenCenter(X);
+		}
 		super.update(elapsed);
 
 		if (FlxG.sound.music.volume < 0.7)
@@ -110,7 +128,7 @@ class CreditsState extends MusicBeatState
 
 		if (accepted)
 		{
-			FlxG.openURL(selectedlist[curSelected][2]);
+			FlxG.openURL(swagGoodArray[curSelected][2]);
 		}
 	}
 
@@ -127,35 +145,36 @@ class CreditsState extends MusicBeatState
 
 		var bullShit:Int = 0;
 
-		for (i in 0...iconArray.length)
+		if(swagGoodArray[curSelected].length >= 2)
 		{
-			iconArray[i].alpha = 0.6;
+			for (i in 0...iconArray.length)
+			{
+				iconArray[i].alpha = 0.6;
+			}
+		
+			iconArray[curSelected].alpha = 1;
 		}
 
-		iconArray[curSelected].alpha = 1;
 		FlxTween.color(bg, 0.5, bg.color, CoolUtil.healthbarcolor(iconArray[curSelected]), {type: FlxTweenType.PERSIST, ease: FlxEase.sineInOut});
 
 		for (item in creditgroup.members)
 		{
-			if(!swagGoodArray[curSelected].length <= 1)
+			item.targetY = bullShit - curSelected;
+			bullShit++;
+	
+			item.alpha = 0.6;
+			// item.setGraphicSize(Std.int(item.width * 0.8));
+			if(item.length <= 1)
+				item.alpha = 1;
+			if (item.targetY == 0)
 			{
-				item.targetY = bullShit - curSelected;
-				bullShit++;
-
-				item.alpha = 0.6;
-				// item.setGraphicSize(Std.int(item.width * 0.8));
-
-				if (item.targetY == 0)
-				{
-					item.alpha = 1;
-					// item.setGraphicSize(Std.int(item.width));
-				}
+				item.alpha = 1;
+				// item.setGraphicSize(Std.int(item.width));
 			}
-			else
-			{
-				item.targetY = bullShit - curSelected;
-				bullShit++;
-			}
+			if(swagGoodArray[curSelected].length <= 1)
+				item.alpha = 1;
 		}
+		if(swagGoodArray[curSelected].length <= 1)
+			changeSelection(change);
 	}
 }

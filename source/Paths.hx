@@ -4,6 +4,7 @@ import flixel.FlxG;
 import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.utils.AssetType;
 import openfl.utils.Assets as OpenFlAssets;
+import sys.FileSystem;
 
 class Paths
 {
@@ -42,12 +43,18 @@ class Paths
 
 	inline static function getLibraryPathForce(file:String, library:String)
 	{
-		return '$library:assets/$library/$file';
+		if (FileSystem.exists('mods/' + Mod.selectedmod + '/$file') == true)
+			return 'mods/' + Mod.selectedmod + '/$file';
+		else
+			return '$library:assets/$library/$file';
 	}
 
 	inline static function getPreloadPath(file:String)
 	{
-		return 'assets/$file';
+		if (FileSystem.exists('mods/' + Mod.selectedmod + '/' + file) == true)
+			return 'mods/' + Mod.selectedmod + '/' + file;
+		else
+			return 'assets/$file';
 	}
 
 	inline static public function file(file:String, type:AssetType = TEXT, ?library:String)
@@ -87,12 +94,18 @@ class Paths
 
 	inline static public function voices(song:String)
 	{
-		return 'songs:assets/songs/${song.toLowerCase()}/Voices.$SOUND_EXT';
+		if (FileSystem.exists('mods/' + Mod.selectedmod +'/songs/${song.toLowerCase()}/Voices.$SOUND_EXT') == true)
+			return 'mods/' + Mod.selectedmod +'/songs/${song.toLowerCase()}/Voices.$SOUND_EXT';
+		else
+			return 'songs:assets/songs/${song.toLowerCase()}/Voices.$SOUND_EXT';
 	}
 
 	inline static public function inst(song:String)
 	{
-		return 'songs:assets/songs/${song.toLowerCase()}/Inst.$SOUND_EXT';
+		if (FileSystem.exists('mods/' + Mod.selectedmod +'/songs/${song.toLowerCase()}/Inst.$SOUND_EXT') == true)
+			return 'mods/' + Mod.selectedmod +'/songs/${song.toLowerCase()}/Inst.$SOUND_EXT';
+		else
+			return 'songs:assets/songs/${song.toLowerCase()}/Inst.$SOUND_EXT';
 	}
 
 	inline static public function image(key:String, ?library:String)
@@ -102,7 +115,10 @@ class Paths
 
 	inline static public function font(key:String)
 	{
-		return 'assets/fonts/$key';
+		if (FileSystem.exists('mods/' + Mod.selectedmod +'/fonts/$key') == true)
+			return 'mods/' + Mod.selectedmod +'/fonts/$key';
+		else
+			return 'assets/fonts/$key';
 	}
 
 	inline static public function getSparrowAtlas(key:String, ?library:String)
